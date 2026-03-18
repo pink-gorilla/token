@@ -18,7 +18,7 @@
 
 (defn login
   [{:keys [users] :as this} {:keys [provider id-token]}]
-  (info "login/oauth2-oidc: id-token: " id-token " provider " provider)
+  (debug "login/oauth2-oidc: id-token: " id-token " provider " provider)
   ;(warn "oauth2->login ctx keys:" (keys this))
   (let [;email (user-email token)
         jwks-url  (provider/oauth2-jwks-uri {:provider provider})
@@ -36,7 +36,7 @@
         ;_ (info "jwt token (access token): " jwt)
         {:keys [error email] :as validation-response} (validate-token id-token jwks alg)
         user-id (when email (find-user-id-via-email users email))]
-    (info "login/oauth2-oidc:validation-response: " validation-response)
+    (debug "login/oauth2-oidc:validation-response: " validation-response)
     (cond
 
       (not email)
@@ -52,8 +52,8 @@
                                       :user (:id user)
                                       :roles (:roles user)
                                       :email (:email user)})]
-        (info "perfect! logging in user: " user)
-        (info "claim: " claim)
+        (debug "perfect! logging in user: " user)
+        (debug "claim: " claim)
         {:status 303
          :headers {"location" "/me"}
          :cookies {"identity" {:value (:token claim)
