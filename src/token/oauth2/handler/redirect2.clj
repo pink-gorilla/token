@@ -1,7 +1,7 @@
 (ns token.oauth2.handler.redirect2
   (:require
    [ring.util.response :as response]
-   [taoensso.timbre :as timbre :refer [info warn]]
+   [taoensso.timbre :as timbre :refer [debug info warn]]
    [token.oauth2.core :refer [exchange-code-to-token]]
    ;[token.oauth2.provider :refer [oauth2-flow-response-parse]]
    [token.oauth2.token :refer [sanitize-token]]
@@ -28,7 +28,7 @@
    :authuser "0", :prompt "none"}
 
 (defn handler-oauth2-redirect [{:keys [ctx params path-params] :as req}]
-  (warn "oauth2/authorize-response: params: " params " path-params: " path-params)
+  (debug "oauth2/authorize-response: params: " params " path-params: " path-params)
   (let [this (:token ctx)
         {:keys [provider]} path-params
         provider-kw (keyword provider)
@@ -36,17 +36,17 @@
         url (redirect-url req provider-kw)]
     ;(warn "redirect this keys: " (keys this))
     (when code
-      (info "exchanging code to token for " provider  " code: " code)
+      (debug "exchanging code to token for " provider  " code: " code)
       ;(info "ctx keys: " (keys ctx) "this keys: " (keys this))
-      (info "oauth2 providers: " (:providers this))
+      (debug "oauth2 providers: " (:providers this))
       (let [t (exchange-code-to-token this {:provider provider-kw
                                             :code code
                                             :current-url url
                                             :state state})
-            _ (info "raw token: " t)
+            _ (debug "raw token: " t)
             t (sanitize-token t)
-            _ (info "sanitized token: " t)]
-        (info "state:" state)
+            _ (debug "sanitized token: " t)]
+        (debug "state:" state)
 
         (save-token this provider-kw t)
 
