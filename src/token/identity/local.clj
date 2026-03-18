@@ -12,7 +12,7 @@
       (codecs/bytes->hex)))
 
 (defn create-claim [{:keys [secret] :as this} claim]
-  (info "creating claim: " claim " secret: " secret)
+  (debug "creating claim: " claim " secret: " secret)
   (let [token (jwt/sign claim secret)]
     (assoc claim :token token)))
 
@@ -22,7 +22,7 @@
   (let [user-kw (keyword user-name)
         password-hashed (pwd-hash user-password)
         user (get-user users user-kw)]
-    (info "get-token user: " user-name " user-kw: " user-kw " user-details: "  user)
+    (debug "get-token user: " user-name " user-kw: " user-kw " user-details: "  user)
     (cond
     ; user unknown
       (not user)
@@ -64,17 +64,17 @@
 
 (defn login
   [this token]
-  (info "login/local: token: " token)
+  (debug "login/local: token: " token)
   (let [{:keys [user error] :as r} (verify-token this token)]
     (if error
       (taoensso.timbre/error "login/local error: " error " token: " token)
-      (info "login/local: result: " r))
+      (debug "login/local: result: " r))
     ;(when user (set-user! permission  *session* user))
 
     r))
 
 (defn login-handler [{:keys [ctx body-params form-params query-params params] :as req}]
-  (info "login-handler body-params: " body-params " form-params: " form-params)
+  (debug "login-handler body-params: " body-params " form-params: " form-params)
   (let [this (:token ctx)
         params (or body-params form-params {})
         user (or (:user params) (get params "user"))
@@ -85,7 +85,7 @@
           ; {:type :local, :provider :local, :user :florian, :roles #{:logistic}, :email ["hoertlehner@gmail.com"], :token "eyJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoibG9jYWwiLCJwcm92aWRlciI6ImxvY2FsIiwidXNlciI6ImZsb3JpYW4iLCJyb2xlcyI6WyJsb2dpc3RpYyJdLCJlbWFpbCI6WyJob2VydGxlaG5lckBnbWFpbC5jb20iXX0.JEPHMQMPu44L-OSLBTi4YSmPaIU_Iq0KO_v2hXrIqJM"}
           ; error:
           ; {:error :bad-password, :error-message "Bad password for  [florian]."}
-        (warn "token-response: " tr)
+        (debug "token-response: " tr)
         (if error
           {:status 303
            :headers {"location" (str "/login?error=" (java.net.URLEncoder/encode (str error-message) "UTF-8"))}}
@@ -118,7 +118,7 @@
             token (get identity-cookie :value)]
         (if token
           (let [r (verify-token this token)]
-            (warn "verify-token result: " r)
+            (debug "verify-token result: " r)
             #_{:type "local", :provider "local",
                :user :florian, :roles ["logistic"],
                :email ["hoertlehner@gmail.com"]}
@@ -128,7 +128,7 @@
                 (error "no identity")
                 (handler req))))
           (do
-            (warn "no logged in user")
+            (debug "no logged in user")
             ;(warn "no token found in identity cookie.")
             ;(warn "cookies: " cookies)
             ;(warn "identity: " identity-cookie)
@@ -143,7 +143,7 @@
 
 (defn wrap-signed-in [handler]
   (fn [{:keys [identity] :as req}]
-    (warn "wrap-signed in is checking identity: " identity)
+    (debug "wrap-signed in is checking identity: " identity)
     ;(warn "wrap-signed req keys: " (keys req))
     (if (and identity (:user identity))
       (handler req)
