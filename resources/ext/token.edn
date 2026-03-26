@@ -1,12 +1,12 @@
-{:name "token"
+{:extension/name :token
  ; build
- :lazy false
- :cljs-namespace [token.core]
- :cljs-ns-bindings {; make sure the namespaces in sci and cljs are identical 
-                    token.core {'init-user! token.core/init-user!
-                                'user-icon-with-login token.core/user-icon-with-login}}
+ :cljs/module :main
+ :cljs/namespace [token.core]
+ :cljs/ns-bindings {; init-user is a service, so we need to expose it.
+                    'token.core {'init-user! token.core/init-user!
+                                 'user-icon-with-login token.core/user-icon-with-login}}
  ; run 
-
+ 
  :web/routes [; html pages
               ["/login" {:get token.identity.page.login/login-page
                          :middleware [ring.middleware.params/wrap-params]}]

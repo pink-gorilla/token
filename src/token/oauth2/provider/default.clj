@@ -7,4 +7,4 @@
       ;[token.oauth2.provider.woo :as woo] ; side-effects
    ))
 
-(error "loaded defautl oauth2-providers (google/github/xero)")
+(info "default oauth2-providers (google/github/xero) loaded.")
